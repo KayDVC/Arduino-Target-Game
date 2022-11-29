@@ -1,6 +1,6 @@
 #pragma once
-#ifndef TYPESFILE
-#define TYPESFILE
+#ifndef TYPESFILE_H
+#define TYPESFILE_H
 
 // Arduino Libs
 #include <stdint.h>
@@ -9,18 +9,19 @@
 namespace types {
 
   // Constants
-  constexpr auto SECOND = 1000; // Defined in ms.
+  constexpr uint16_t SECOND = 1000; // Defined in ms.
 
   /// @todo Assign when values known.
+  // Map Arduino pin connections to physical input components.
   enum class InputPorts: uint8_t {
     Targets_Data_Pin,
     Start_Button,
     TOTAL,
   };
-  InputPorts input_ports[] = {InputPorts::Targets_Data_Pin, InputPorts::Start_Button};
 
 
   /// @todo Assign when values known.
+  // Map Arduino pin connections to physical output components.
   enum class OutputPorts: uint8_t {
     LEDs_Data_Pin,
     LEDs_Clock_Pin,
@@ -29,8 +30,6 @@ namespace types {
     Targets_Latch_Pin,
     TOTAL,
   };
-  OutputPorts output_ports[] = {OutputPorts::LEDs_Data_Pin, OutputPorts::LEDs_Clock_Pin,
-  OutputPorts::LEDs_Latch_Pin, OutputPorts::Targets_Clock_Pin, OutputPorts::Targets_Latch_Pin};
 
   // Map targets to indentifier. Requires 2 shift registers minimum.
   enum class Targets: uint8_t{

@@ -5,7 +5,7 @@
 // Arduino Libs
 #include <Arduino.h>
 #include <Array.h>
-#include <U8g2lib.h>
+// #include <U8g2lib.h>
 #include <U8x8lib.h>
 
 // Custom Libs
@@ -35,16 +35,19 @@ namespace game { class GameInterface{
   //////////////////////////////////////////////////////////////////////////////
   /// @details    Configure and validate all necessary components for game.
   /// @note       Uses a series of processor delays, serial logging, and
-  ///             graphics to allow visual confirmation.
-  ///             "0%" Graphic   : LCD was configured sucessful.
-  ///             "25%" Graphic  : Target values have been randomly assigned.
-  ///             "50%" Graphic  : System and neccessary variables are in their
+  ///             display printing to allow visual confirmation.
+  ///             "0%"   : LCD was configured sucessful.
+  ///             "25%"  : Target values have been randomly assigned.
+  ///             "50%"  : System and neccessary variables are in their
   ///                              expected state.
-  ///             "75%" Graphic  : Flash Tests has completed. Visual verification
-  ///                              required.
-  ///             "100%" Graphic : Target values have been randomly assigned.
-  ///             Skull and Crossbones Graphic : Some system component is not
-  ///             in its expected state. Debugging required.
+  ///             "75%"  : Flash Tests has completed. Visual verification
+  ///                      required. Note this only guarantees that SW-based
+  ///                      output functionality works as expected.
+  ///             "PASS" : Target input tests has been completed. Note this 
+  ///                      only guarantees SW-based input functionality
+  ///                      works as expected.
+  ///             "FAIL" : Some system component is not in its expected state.
+  ///                      Debugging required.
   //////////////////////////////////////////////////////////////////////////////
   void setupGame();
 
@@ -58,14 +61,14 @@ namespace game { class GameInterface{
   private:
   //////////////////////////////////////////////////////////////////////////////
   /// @details    Configure LCD for use during game.
-  /// @note       A "0%" graphic should at the end of configuration.
+  /// @note       "0%" should be printed to lcd at the end of configuration.
   //////////////////////////////////////////////////////////////////////////////
   void setupLcd();
 
   //////////////////////////////////////////////////////////////////////////////
   /// @details    Assign each target a value from min_points to max_points.
   /// @note       Value will be used throughout game update player score.
-  /// @note       A "25%" graphic should at the end of configuration.
+  /// @note       "25%" should be printed to lcd at the end of configuration.
   //////////////////////////////////////////////////////////////////////////////
   void randomizePoints();
 
@@ -97,7 +100,7 @@ namespace game { class GameInterface{
   uint8_t min_points, max_points;
 
   // LCD
-  U8G2_SH1106_128X64_NONAME_F_HW_I2C lcd_;  // See: (https://github.com/olikraus/u8g2/wiki/u8g2setupcpp#sh1106-128x64_noname-1)
+  U8X8_SH1106_128X64_NONAME_HW_I2C lcd_;      // See: (https://github.com/olikraus/u8g2/wiki/u8x8setupcpp#sh1106-128x64_noname-1); Uses MUCH less dynamic mem.
   uint8_t x_pos_, y_pos_;                     // Positions for glyph drawings.
 
   // Port Access

@@ -4,7 +4,7 @@
 
 #include "PortAccess.h"
 
-constexpr auto POST_READ_WAIT = 10; // Helps avoid false positive reads.
+constexpr uint8_t POST_READ_WAIT = 10; // Helps avoid false positive reads.
 
 namespace port_access {
 
@@ -18,6 +18,7 @@ namespace port_access {
     llp_(static_cast<uint8_t>(OutputPorts::LEDs_Latch_Pin))
   {
     led_register_.fill(EnaDis::Disabled);
+    
     initializePorts();
   }
 
@@ -55,11 +56,15 @@ namespace port_access {
     // See ref here: (https://arduino.stackexchange.com/a/13173).
     // See profile here: (https://arduino.stackexchange.com/users/4143/majenko).
 
-    Serial.println("--------- Begin Port Config Verification ---------");
-    Serial.println("");
+    const InputPorts input_ports[]= {InputPorts::Targets_Data_Pin, InputPorts::Start_Button};
+    const OutputPorts output_ports[] = {OutputPorts::LEDs_Data_Pin, OutputPorts::LEDs_Clock_Pin,
+          OutputPorts::LEDs_Latch_Pin, OutputPorts::Targets_Clock_Pin, OutputPorts::Targets_Latch_Pin};
+
+    Serial.println(F("--------- Begin Port Config Verification ---------"));
+    Serial.println(F(""));
 
     // Verify all ports in types::InputPorts are in pinMode Input.
-    for (auto& pin: input_ports){
+    for (const InputPorts& pin: input_ports){
       uint8_t bit = digitalPinToBitMask(static_cast<uint8_t>(pin));
       uint8_t port = digitalPinToPort(static_cast<uint8_t>(pin));
       volatile uint8_t *reg = portModeRegister(port);
@@ -70,9 +75,10 @@ namespace port_access {
       }
     }
 
-    Serial.println("Input ports correctly configured. ");
-    // Verify all ports in types::InputPorts are in pinMode Input.
-    for (auto& pin: input_ports){
+    Serial.println(F("Input ports correctly configured."));
+    
+    // Verify all ports in types::OutputPorts are in pinMode Output.
+    for (const OutputPorts& pin: output_ports){
       uint8_t bit = digitalPinToBitMask(static_cast<uint8_t>(pin));
       uint8_t port = digitalPinToPort(static_cast<uint8_t>(pin));
       volatile uint8_t *reg = portModeRegister(port);
@@ -84,9 +90,9 @@ namespace port_access {
         return false;
       }
     }
-    Serial.println("Output ports correctly configured.");
-    Serial.println("");
-    Serial.println("");
+    Serial.println(F("Output ports correctly configured."));
+    Serial.println(F(""));
+    Serial.println(F(""));
     return true;
   }
 
@@ -94,9 +100,9 @@ namespace port_access {
     constexpr auto flashes = 3;
     constexpr auto quarter_second = 250; // defined in ms.
 
-    Serial.println("--------- Begin LED Verification ---------");
-    Serial.println("");
-    Serial.println("All LEDs should flash 3 times.");
+    Serial.println(F("--------- Begin LED Verification ---------"));
+    Serial.println(F(""));
+    Serial.println(F("All LEDs should flash 3 times."));
 
     for (auto i =0; i < flashes; i++){
       // Turn on all LEDs.
@@ -113,45 +119,50 @@ namespace port_access {
       // Allow time for LEDs to display new signal.
       delay(quarter_second);
 
-      Serial.print("Flash count: ");
+      Serial.print(F("Flash count: "));
       Serial.println(i);     
     }
 
-    Serial.println("");
-    Serial.println("");
+    Serial.println(F(""));
+    Serial.println(F(""));
 
   }
 
   void PortAccessInterface::verifyTargets(){
     uint8_t remaining_targets = 5;
-    Serial.println("--------- Begin Target Verification ---------");
-    Serial.println("Please hit 5 targets with laser");
+    Serial.println(F("--------- Begin Target Verification ---------"));
+    Serial.println(F("Please hit 5 targets with laser"));
     do {
       Targets test;
       if(targetHit(test)){
-        Serial.print("Target Hit Detected; Target Identifier: ");
+        Serial.print(F("Target Hit Detected; Target Identifier: "));
         Serial.println(static_cast<uint8_t>(test));
         remaining_targets-= 1;
 
-        Serial.print("Remaining Targets: ");
+        Serial.print(F("Remaining Targets: "));
         Serial.println(remaining_targets);
       };
     
     }while (remaining_targets!= 0);
-    Serial.println("Test completed.");
-    Serial.println("");
-    Serial.println("");
+    Serial.println(F("Test completed."));
+    Serial.println(F(""));
+    Serial.println(F(""));
   }
 
 // Private Functions
   void PortAccessInterface::initializePorts(){
+
+    const InputPorts input_ports[]= {InputPorts::Targets_Data_Pin, InputPorts::Start_Button};
+    const OutputPorts output_ports[] = {OutputPorts::LEDs_Data_Pin, OutputPorts::LEDs_Clock_Pin,
+          OutputPorts::LEDs_Latch_Pin, OutputPorts::Targets_Clock_Pin, OutputPorts::Targets_Latch_Pin};
+          
     // Set Input Ports <- Types::InputPorts.
-    for (auto& in_port: input_ports){
+    for (const InputPorts& in_port: input_ports){
       pinMode(static_cast<uint8_t>(in_port), INPUT);
     }
 
     // Set Output Ports <- Types::OutputPorts.
-    for (auto& out_port: output_ports){
+    for (const OutputPorts& out_port: output_ports){
       pinMode(static_cast<uint8_t>(out_port), OUTPUT);
     }
 
@@ -164,7 +175,7 @@ namespace port_access {
     digitalWrite(tlp_, HIGH);
 
     // Read inputs one bit at a time. LSB -> MSB.
-    for (auto i = 0; i < TOTAL_TARGETS; i++){
+    for (uint8_t i = 0; i < TOTAL_TARGETS; i++){
 
       // Return first HIGH ("hit") signal detected.
       if(digitalRead(tdp_)){
@@ -190,7 +201,7 @@ namespace port_access {
     digitalWrite(llp_, LOW);
 
     // Push in states for all LEDs. MSB -> LSB.
-    for (auto i = TOTAL_LEDS - 1; i >= 0; i--) {
+    for (uint8_t i = TOTAL_LEDS - 1; i >= 0; i--) {
       // Prep SR to receive bit.
       digitalWrite(lcp_, LOW);
       // Send bit to SR.

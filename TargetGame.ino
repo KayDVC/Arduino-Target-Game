@@ -17,11 +17,12 @@ void setup() {
   // Debugging functionality.
   Serial.begin(9600);
 
+  // Start Game
+  game_ifc_.runGame();
+
 }
 
 void loop() {
-  // Start Game
-  game_ifc_.runGame();
 
 }
 
