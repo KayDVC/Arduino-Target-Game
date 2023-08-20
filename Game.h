@@ -19,6 +19,7 @@ using EnaDis              = types::EnaDis;
 using OutputPorts         = types::OutputPorts;
 using InputPorts          = types::InputPorts;
 using PortAccessInterface = port_access::PortAccessInterface;
+using GameResult          = types::GameResult;
 
 using namespace types;
 
@@ -29,7 +30,7 @@ namespace game { class GameInterface{
   GameInterface();
 
   // Destructor
-  ~GameInterface() = default;
+  ~GameInterface() = default;  
 
 
   //////////////////////////////////////////////////////////////////////////////
@@ -37,7 +38,6 @@ namespace game { class GameInterface{
   /// @note       Uses a series of processor delays, serial logging, and
   ///             display printing to allow visual confirmation.
   ///             "0%"   : LCD was configured sucessful.
-  ///             "25%"  : Target values have been randomly assigned.
   ///             "50%"  : System and neccessary variables are in their
   ///                              expected state.
   ///             "75%"  : Flash Tests has completed. Visual verification
@@ -51,7 +51,9 @@ namespace game { class GameInterface{
   //////////////////////////////////////////////////////////////////////////////
   void setupGame();
 
-  ///@todo add descriptions and params.
+  //////////////////////////////////////////////////////////////////////////////
+  /// @details    Set/Update player score and target trackers.
+  //////////////////////////////////////////////////////////////////////////////
   void runGame();
 
   
@@ -66,11 +68,13 @@ namespace game { class GameInterface{
   void setupLcd();
 
   //////////////////////////////////////////////////////////////////////////////
-  /// @details    Assign each target a value from min_points to max_points.
-  /// @note       Value will be used throughout game update player score.
-  /// @note       "25%" should be printed to lcd at the end of configuration.
+  /// @details    Determine eligibility of target hit;
+  /// @param[in]  t_hit - Hit Target Identifier.
+  /// @param[in]  now - Time when parent `updateScore` called in ms.
+  /// @return     Whether the required "cooldown" time has passed since
+  ///             target last hit.
   //////////////////////////////////////////////////////////////////////////////
-  void randomizePoints();
+  bool validHit(Targets t_hit, unsigned long now);
 
   //////////////////////////////////////////////////////////////////////////////
   /// @details    Update player score based on target "hit" and target's value.
@@ -78,11 +82,18 @@ namespace game { class GameInterface{
   //////////////////////////////////////////////////////////////////////////////
   void updateScore(Targets t_hit);
 
-  ///@todo add descriptions and params.
-  void updateDisplay();
+  //////////////////////////////////////////////////////////////////////////////
+  /// @details    Update player score and remaining time on display.
+  /// @param[in]  update_score - Whether the LCD needs to update score.
+  //////////////////////////////////////////////////////////////////////////////
+  void updateDisplay(bool update_score);
 
-  ///@todo add descriptions and params.
-  void endGame();
+  //////////////////////////////////////////////////////////////////////////////
+  /// @details    Post-game visual cues.
+  /// @param[in]  res - Result of game based on "Win" and "Lose" criteria.
+  /// @note       Forces system reset to play again.
+  //////////////////////////////////////////////////////////////////////////////
+  void endGame(GameResult res);
 
   //
   // Member Variables
@@ -90,18 +101,23 @@ namespace game { class GameInterface{
 
   // Score
   uint8_t player_score_;
+  uint8_t target_value_;
+  Array<unsigned long, types::TOTAL_TARGETS> last_hit_time_;
 
   // Timing
   bool start_game_;
   unsigned long start_time_;
-
+  
   // Enhancements
-  Array<uint8_t,TOTAL_TARGETS> target_values_;
-  uint8_t min_points, max_points;
+  bool multiply_points_;
+  uint8_t point_multiplier_;
+  unsigned long bonus_time_start_;
+  unsigned long bonus_time_end;
 
   // LCD
-  U8X8_SH1106_128X64_NONAME_HW_I2C lcd_;      // See: (https://github.com/olikraus/u8g2/wiki/u8x8setupcpp#sh1106-128x64_noname-1); Uses MUCH less dynamic mem.
-  uint8_t x_pos_, y_pos_;                     // Positions for glyph drawings.
+  U8X8_SH1106_128X64_NONAME_HW_I2C lcd_;                     // See: (https://github.com/olikraus/u8g2/wiki/u8x8setupcpp#sh1106-128x64_noname-1); Uses MUCH less dynamic mem.
+  uint8_t start_pos_, offset_pos_, label_pos_, value_pos_;   // Positions for text-based LCD graphics.
+  bool first_score_update_;
 
   // Port Access
   PortAccessInterface port_ifc_;

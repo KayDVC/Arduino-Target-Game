@@ -67,10 +67,19 @@ namespace types {
   };
   constexpr uint8_t TOTAL_LEDS = static_cast<uint8_t>(LEDs::TOTAL);
 
-  // Expression of state for all IO
+  // Expression of state for all IO.
   enum class EnaDis: bool {
     Disabled = false,
     Enabled = true,
+  };
+
+  //
+  // Game Types
+  // 
+  // Expression of End of Game State.
+  enum class GameResult: bool {
+    Lose = false,
+    Win = true,
   };
 
 } // namespace types

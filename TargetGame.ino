@@ -10,12 +10,13 @@ using GameInterface = game::GameInterface;
 GameInterface game_ifc_;
 
 void setup() {
+
+  // Enable debugging output.
+  Serial.begin(9600);
+
   // Setup
   // Utilizes visual and software verification.
   game_ifc_.setupGame();
-
-  // Debugging functionality.
-  Serial.begin(9600);
 
   // Start Game
   game_ifc_.runGame();
