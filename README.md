@@ -44,10 +44,6 @@ Though the project was a "team-project" with ~ 6 members, all soft/hardware desi
 
 I usually like to post finished, working products, but sometimes, the effort is enough. Learning doesn't always look pretty. With so many unknowns and such little time, I'm proud of what I was able to accomplish. 
 
-Embedded design is different from the apps I usually design in that it requires much more thought about who, when, and how each and every subsystem, interface, or function will be used. Each layer builds upon another, and when it works, it works well. Almost like magic.
-
-2, 5, and 10 years from now, I hope to look back and see the progress I've made in my design and system thinking skills.
-
 I have no intentions of continuing the project, but feel free to leave suggestions or improvements.
 
 If used as "inspiration," please link back to this repo.
